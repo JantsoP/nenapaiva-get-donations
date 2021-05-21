@@ -1,47 +1,51 @@
 #!/bin/bash
-
+clear
 # Setting global variables
 # Ask the user for their Nenäpäivä URL
-echo "What Nenäpäivä page would you like to download? (Provide full URL)"
-read nenapage
-# Ask which filename they would like to save it
-echo What would be the name of the saved webpage?
-read pagename
+echo "What Nenäpäivä page would you like to download?"
+echo "Please provide only page ID. For example oaj"
+read nettilipas
 
 # Create nenapaiva-files dir
 echo Creating needed dirs.
-mkdir nenapaiva-files
+if [ -d "nenapaiva-files" ] 
+then
+    echo "Directory nenapaiva-files exists." 
+else
+    echo "Error: Directory nenapaiva-files does not exists. Creating it here"
+    mkdir nenapaiva-files
+fi
 clear
-echo All done. Starting script in 5 seconds.
-sleep 5
+echo All done. Starting script in 3 seconds.
+sleep 3
 
 # Lets loop this thing.
 while :
 do
     clear
-    echo Wakey wakey, eggs and bakey
+    echo Lets goooooo
     echo
     echo
-	echo Get Nenapaiva page
-    echo
-    echo
-    wget $nenapage -O nenapaiva-files/$pagename
+    echo Get Nenapaiva page
+    wget https://nenapaiva.fi/nettilipas/$nettilipas -O nenapaiva-files/$nettilipas
     echo Print webpage and then grab total sum of current donations
     echo
     echo
-    echo Print result and then remove extra div after euro sign
-    cat nenapaiva-files/$pagename | grep "€ </div>" > nenapaiva-files/stripped-sum.txt
-    cat nenapaiva-files/stripped-sum.txt | cut -d "<" -f1 > nenapaiva-files/stripped-space.txt
-    echo
-    echo
-    echo Remove extra space from end of line
-    sed 's/[[:blank:]]*$//' nenapaiva-files/stripped-space.txt > donations.txt
-    echo
-    echo
-    echo Print the result to console as well
-    cat donations.txt
+    echo Parse the result
+    cat nenapaiva-files/$nettilipas | grep '<span class="has-nenapaiva-red-color">' > nenapaiva-files/$nettilipas-parsed.txt
+    # Remove extra HTML code which is not needed lol
+    sed -i 's/<span class="has-nenapaiva-red-color">//g' nenapaiva-files/$nettilipas-parsed.txt
+    # Remove tabs and spaces which are left because above command
+    tabsremoved=$(sed -e 's/^[ \t]*//' nenapaiva-files/$nettilipas-parsed.txt)
+    # Remove everything after the ammount
+    extrasremoved=$(echo $tabsremoved | cut -d "&" -f1 > nenapaiva-files/donations.txt)
+    # Add missing € to end of the line
+    sed -i s/$/€/ nenapaiva-files/donations.txt
+    clear
+    echo Total donations in $nettilipas nettilipas
+    cat nenapaiva-files/donations.txt
     echo
     echo
     echo I sleep now for 30 seconds. To stop this script, just press CTRL+C
-	sleep 30
+    sleep 30
 done
