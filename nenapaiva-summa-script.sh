@@ -28,9 +28,6 @@ do
     echo
     echo Get Nenapaiva page
     wget https://nenapaiva.fi/nettilipas/$nettilipas -O nenapaiva-files/$nettilipas
-    echo Print webpage and then grab total sum of current donations
-    echo
-    echo
     echo Parse the result
     cat nenapaiva-files/$nettilipas | grep '<span class="has-nenapaiva-red-color">' > nenapaiva-files/$nettilipas-parsed.txt
     # Remove extra HTML code which is not needed lol
