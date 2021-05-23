@@ -35,7 +35,7 @@ do
     # Remove tabs and spaces which are left because above command
     tabsremoved=$(sed -e 's/^[ \t]*//' nenapaiva-files/$nettilipas-parsed.txt)
     # Remove everything after the ammount
-    extrasremoved=$(echo $tabsremoved | cut -d "&" -f1 > nenapaiva-files/donations.txt)
+    echo $tabsremoved | cut -d "&" -f1 > nenapaiva-files/donations.txt
     # Add missing € to end of the line
     sed -i s/$/€/ nenapaiva-files/donations.txt
     clear
