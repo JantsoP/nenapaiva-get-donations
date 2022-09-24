@@ -33,9 +33,13 @@ do
     # Remove extra HTML code which is not needed lol
     sed -i 's/<span class="has-nenapaiva-red-color">//g' nenapaiva-files/$nettilipas-parsed.txt
     # Remove tabs and spaces which are left because above command
-    tabsremoved=$(sed -e 's/^[ \t]*//' nenapaiva-files/$nettilipas-parsed.txt)
-    # Remove everything after the ammount
-    echo $tabsremoved | cut -d "&" -f1 > nenapaiva-files/donations.txt
+    tabremoved=$(sed -e 's/^[ \t]*//' nenapaiva-files/$nettilipas-parsed.txt)
+    # Remove &nbsp and replace them with space
+    replacenbsp=$(echo $tabremoved | sed -e 's/\&nbsp;/\ /g')
+    # Remove extra HTML elements
+    strippedelements=$(echo $replacenbsp | perl -p -e 's/&.*?;//g' | tr -dc '[:print:]')
+    # Remove extra </span> after the ammount
+    echo $strippedelements | sed 's/<[^>]*>//g' > nenapaiva-files/donations.txt
     # Add missing € to end of the line
     sed -i s/$/€/ nenapaiva-files/donations.txt
     clear
